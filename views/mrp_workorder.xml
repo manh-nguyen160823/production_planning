@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <record id="mrp_workorder_grid_view" model="ir.ui.view">
+            <field name="name">mrp_workorder_grid_view</field>
+            <field name="model">mrp.workorder</field>
+            <field name="arch" type="xml">
+                <grid hide_line_total="0" hide_column_total="0">
+                    <field name="workcenter_id" type="row"/>
+                    <field name="department_id" type="row"/>
+                    <field name="date_planned_start" type="col">
+                        <range name="week" string="Week" span="week" step="day"/>
+                        <range name="month" string="Month" span="month" step="day"/>
+                    </field>
+                    <field name="duration" type="measure"/>
+                </grid>
+            </field>
+        </record>
+
+
+        <record id="mrp_workorder_editable_tree_view_inherit" model="ir.ui.view">
+            <field name="name">mrp_workorder_editable_tree_view_inherit</field>
+            <field name="model">mrp.workorder</field>
+            <field name="inherit_id" ref="mrp.mrp_production_workorder_tree_editable_view"/>
+            <field name="arch" type="xml">
+                <field name="name" position="after">
+                    <field name="root_item" optional="hide"/>
+                    <field name="parent_product_id" optional="hide"/>
+                </field>
+            </field>
+        </record>
+
+        <record id="mrp_workorder_tree_view_inherit" model="ir.ui.view">
+            <field name="name">mrp_workorder_tree_view_inherit</field>
+            <field name="model">mrp.workorder</field>
+            <field name="inherit_id" ref="mrp.mrp_production_workorder_tree_view"/>
+            <field name="arch" type="xml">
+                <field name="name" position="before">
+                    <field name="product_id" optional="show"/>
+                    <field name="plan_id" optional="show"/>
+                    <field name="plan_line_id" optional="show"/>
+                    <field name="root_item" optional="hide"/>
+                    <field name="parent_product_id" optional="hide"/>
+                    <field name="department_id" optional="show"/>
+                    <field name="qty_production"/>
+                    <field name="qty_producing"/>
+                    <field name="qty_produced"/>
+                    <field name="qty_remaining"/>
+                    <field name="progress"/>
+                </field>                
+            </field>
+        </record>
+
+        <record model="ir.actions.act_window" id="menu_mrp_workorder_todo">
+            <field name="name">Work Orders</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">mrp.workorder</field>
+            <field name="view_mode">grid,tree,kanban,form,calendar,pivot,graph,gantt</field>
+            <field name="search_view_id" ref="mrp.view_mrp_production_workorder_form_view_filter"/>
+            <field name="context">{'search_default_ready': True, 'search_default_progress': True, 'search_default_pending': True}</field>
+            <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No work orders to do!
+            </p><p>
+                Work orders are operations to do as part of a manufacturing order.
+                Operations are defined in the bill of materials or added in the manufacturing order directly.
+            </p>
+            </field>
+        </record>
+    </data>
+</odoo>

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="notification_confirm_plan_order" model="mail.activity.type">
+        <field name="name">Notify confirm Plan order</field>
+        <field name="icon">fa-pencil-square-o</field>
+        <field name="delay_count">5</field>
+        <field name="sequence">12</field>
+    </record>
+
+    <record id="notification_to_plan_manager" model="mail.activity.type">
+        <field name="name">Notify Plan manager</field>
+        <field name="icon">fa-pencil-square-o</field>
+        <field name="delay_count">5</field>
+        <field name="sequence">12</field>
+    </record>
+
+    <record id="notification_plan_order_back_to_user" model="mail.activity.type">
+        <field name="name">Notify To User</field>
+        <field name="icon">fa-pencil-square-o</field>
+        <field name="delay_count">5</field>
+        <field name="sequence">12</field>
+    </record>
+
+    <record id="notification_after_confirm_plan_order_back_to_manager" model="mail.activity.type">
+        <field name="name">Notify To Plan Manager</field>
+        <field name="icon">fa-pencil-square-o</field>
+        <field name="delay_count">5</field>
+        <field name="sequence">12</field>
+    </record>
+
+</odoo>

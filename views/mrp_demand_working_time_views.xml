@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <record id="mrp_demand_working_time_search_view" model="ir.ui.view">
+            <field name="name">mrp.demand.working.time.search.view</field>
+            <field name="model">mrp.demand.working.time</field>
+            <field name="arch" type="xml">
+                <search string="Schedule Time">
+                    <field name="workcenter_id"/>
+                    <group expand="0" string="Group By">
+                        <filter string="Plan Line" name="by_plan_line" context="{'group_by':'plan_line_id'}"/>
+                        <filter string="Demand Line" name="by_demand_line" context="{'group_by':'demand_line_id'}"/>
+                        <separator/>
+                        <filter string="Work Center" name="by_workcenter" context="{'group_by':'workcenter_id'}"/>
+                        <filter string="Department" name="by_department" context="{'group_by':'department_id'}"/>
+                    </group>
+                    <searchpanel>
+                        <field name="department_id" icon="fa-tags" enable_counters="1"/>
+                    </searchpanel>
+                </search>
+            </field>
+        </record>
+
+        <record id="mrp_demand_working_time_tree_view" model="ir.ui.view">
+            <field name="name">mrp.demand.working.time.tree.view</field>
+            <field name="model">mrp.demand.working.time</field>
+            <field name="arch" type="xml">
+                <tree string="Schedule Time">
+                    <field name="currency_id" invisible="1"/>
+                    <field name="company_id" invisible="1"/>
+                    <field name="demand_order_id" invisible="1"/>
+                    <field name="workcenter_id"/>
+                    <field name="department_id"/>
+                    <field name="demand_line_id" optional="show"/>
+                    <field name="expected_duration" string="Duration (MM:ss)" widget="float_time"/>
+                    <field name="cost_duration" string="Cost" widget='monetary' options="{'currency_field': 'currency_id'}"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="mrp_demand_working_time_tree_plan_view" model="ir.ui.view">
+            <field name="name">mrp.demand.working.time.tree.plan.view</field>
+            <field name="model">mrp.demand.working.time</field>
+            <field name="arch" type="xml">
+                <tree string="Schedule Time">
+                    <field name="currency_id" invisible="1"/>
+                    <field name="company_id" invisible="1"/>
+                    <field name="plan_id" invisible="1"/>
+                    <field name="workcenter_id"/>
+                    <field name="department_id"/>
+                    <field name="plan_line_id" optional="show"/>
+                    <field name="expected_duration" string="Duration (MM:ss)" widget="float_time"/>
+                    <field name="cost_duration" string="Cost" widget='monetary' options="{'currency_field': 'currency_id'}"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="mrp_demand_working_time_pivot_view" model="ir.ui.view">
+            <field name="name">mrp.demand.working.time.pivot.view</field>
+            <field name="model">mrp.demand.working.time</field>
+            <field name="arch" type="xml">
+                <pivot string="Working Time Pivot" display_quantity="true">
+					<field name="plan_line_id" type="row"/>
+					<field name="department_id" type="col"/>
+					<field name="expected_duration" type="measure"/>
+				</pivot>
+            </field>
+        </record>
+
+        <record id="mrp_demand_working_time_graph_view" model="ir.ui.view">
+            <field name="name">mrp.demand.working.time.graph.view</field>
+            <field name="model">mrp.demand.working.time</field>
+            <field name="arch" type="xml">
+                <graph string="Working Time Graph" sample="1">
+                    <field name="department_id" type="col"/>
+                    <field name="expected_duration" type="measure" widget="float_time"/>
+                </graph>
+            </field>
+        </record>
+
+    </data>
+</odoo>

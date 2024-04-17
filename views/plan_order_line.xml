@@ -1,0 +1,273 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <record id="plan_order_line_search" model="ir.ui.view">
+		    <field name="name">plan_order_line_search</field>
+		    <field name="model">plan.order.line</field>
+		    <field name="arch" type="xml">
+		        <search string="MRP Plan Line">
+		            <field name="plan_id"/>
+		            <field name="product_id" string="Product" filter_domain="['|','|',('product_tmpl_id', 'ilike', self),('bom_id', 'ilike', self),('bom_id.product_id', 'ilike', self)]"/>
+		            <separator/>
+                    <filter string="To Do" name="todo" domain="[('state','not in',['cancel','done'])]"/>
+                    <filter string="Done" name="state_done" domain="[('state','=','done')]"/>
+                    <group expand="0" string="Group By">
+						<filter string="Plan Order" name="by_plan_id" domain="[]" context="{'group_by': 'plan_id'}"/>
+                        <filter string="Product" name="by_product_id" domain="[]" context="{'group_by': 'product_id'}"/>
+                        <filter string="Status" name="by_state" domain="[]" context="{'group_by': 'state'}"/>
+                    </group>
+		       </search>
+		    </field>
+		</record>
+
+        <record  id="plan_order_line_tree" model="ir.ui.view">
+        	<field name="name">plan_order_line_tree</field>
+            <field name="model">plan.order.line</field>
+            <field name="arch" type="xml">
+                <tree string="Plan Order Lines" edit="false" delete="false" create="1">
+                    <field name="sequence" widget="handle"/>
+                    <field name="barcode"  optional="show"/>
+                    <field name="default_code"  optional="show"/>
+                    <field name="product_id"  optional="show"/>
+                    <field name="plan_id" decoration-success="1"/>
+                    <field name="name" decoration-bf="1" invisible="1"/>
+                    <field name="forecast_type" widget="badge"/>
+                    <field name="bom_id" force_save="1" optional="hide"/>
+                    <field name="qty_need" optional="show"/>
+     				<field name="qty_planned" invisible="1"/>
+     				<field name="qty_remain" invisible="1"/>
+                    <field name="qty_onhand" optional="show"
+                          	decoration-danger="qty_onhand &lt;= 0"/>
+                    <field name="qty_forecast" optional="show"
+                    		decoration-danger="qty_forecast &lt;= 0"/>
+                    <field name="qty_reserve_plan" optional="show"
+                    		decoration-success="qty_onhand &gt; 0"/>
+                    <field name="qty_reserve_all" readonly="1" optional="show"
+                    		decoration-warning="qty_onhand &gt; 0"/>
+                    <field name="qty_available" readonly="1" optional="show"
+                    		decoration-danger="qty_available &lt;= 0"/>
+                    <field name="qty_deduct" readonly="1" invisible="1"/>
+                    <field name="qty_produce" optional="show"/>
+                    <field name="qty_done"
+                    		decoration-success="qty_done - qty_produce == 0"
+                        	decoration-warning="qty_done - qty_produce &gt; 0.0001"/>
+					<field name="schedule_date_start" attrs="{'readonly': [('state', 'not in', ['draft', 'sent', 'approve'])]}"/>
+                    <field name="schedule_date_end" attrs="{'readonly': [('state', 'not in', ['draft', 'sent', 'approve'])]}"/>
+                    <field name="expect_duration" optional="show"/>
+                    <field name="progress" invisible="1"/>
+	                <field name="percent_progressed" string="MO Progress (%)" widget="progressbar" optional="show"/>
+                    <field name="wo_progressed" string="WO Progressed (%)" widget="progressbar" optional="show"/>
+                    <field name="time_progressed" string="Time Progress (%)" widget="progressbar" optional="show"/>
+	                <field name="demand_line_id" optional="hide"/>
+	                <field name="company_id" invisible="1"/>
+	                <field name="lock_modify" invisible="1"/>
+	                <field name="state" invisible="1"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="plan_order_line_form" model="ir.ui.view">
+            <field name="name">Plan Order Lines</field>
+            <field name="model">plan.order.line</field>
+            <field name="arch" type="xml">
+                <form string="Plan Order Line" edit="0" create="0">
+                    <sheet>
+                    	<div class="oe_title">
+                            <h1>
+                                <field name="display_name" readonly="1" decoration-bf="1"/>
+                            </h1>
+                        </div>
+                        <group name="plan_order_form">
+                            <group name="plan_order_date">
+                            	<field name="plan_id" readonly="True"/>
+                                <field name="product_id" readonly="1"/>
+                                <field name="demand_line_id"/>
+                                <field name="bom_id" force_save="1" readonly="1"/>
+                                <field name="uom_id" readonly="1" groups="uom.group_uom" class="oe_inline"/>
+                                <field name="qty_need"/>
+			                    <field name="qty_onhand"/>
+			                    <field name="qty_forecast"/>
+			                    <field name="qty_reserve_plan" readonly="1"/>
+			                    <field name="qty_reserve_all" readonly="1"/>
+			                    <field name="qty_available" readonly="1"/>
+			                    <field name="qty_deduct" invisible="1"/>
+			                    <field name="qty_produce"/>
+			                    <field name="qty_done"/>
+			                    <field name="name" invisible="1"/>
+                            </group>
+                            <group name="plan_order_schedule">
+								<field name="schedule_date_start" attrs="{'readonly': [('state', 'not in', ['draft', 'sent', 'approve'])]}"/>
+								<field name="schedule_date_end" attrs="{'readonly': [('state', 'not in', ['draft', 'sent', 'approve'])]}"/>
+                            	<field name="expect_duration" readonly="1"/>
+                                <field name="progress" invisible="1"/>
+                                <field name="percent_progressed" string="MO Progressed (%)" widget="progressbar"/>
+                                <field name="wo_progressed" string="WO Progressed (%)" widget="progressbar"/>
+                                <field name="time_progressed" string="Time Progressed (%)" widget="progressbar"/>
+                                <field name="lock_modify" invisible="1"/>
+                                <field name="sequence" invisible="1"/>
+                                <field name="company_id" invisible="1"/>
+                                <field name="line_type" invisible="1"/>
+                                <field name="sequence" invisible="1"/>
+                                <field name="state" invisible="1"/>
+                            </group>
+                        </group>
+                        
+                        <separator string="Notes"/>
+                        <field name="note"/>
+							
+                        <notebook>
+                        	<page string="Components to Produced" name="plan_product" attrs="{'invisible': [('plan_product_ids','=',[])]}">
+	                           <field name="plan_product_ids">
+	                                <tree string="Components to Produced" editable="bottom">
+	                                	<field name="product_id"/>
+	                                    <field name="qty_demand" string="Qty to Produce"/>
+	                                    <field name="uom_id" groups="uom.group_uom"/>
+	                                    <field name="plan_line_id" invisible="1"/>
+	                                	<field name="plan_id" invisible="1"/>
+	                                </tree>
+	                            </field>
+                            </page>
+                            <page string="Linked Moves" name="moves" attrs="{'invisible': [('move_ids','=',[])]}">
+	                           <field name="move_ids"/>
+                            </page>
+                            <page string="Stock Pickings" name="pickings" attrs="{'invisible': [('pickings','=',[])]}">
+	                           <field name="pickings">
+	                                <tree>
+	                                    <field name="name"/>
+	                                    <field name="origin"/>
+	                                    <field name="state"/>
+	                                </tree>
+	                            </field>
+                            </page>
+                            <page string="Raw Material" name="raw_material" attrs="{'invisible': [('raw_material_ids','=',[])]}">
+								<field name="raw_material_ids"/>
+                            </page>
+                            <page string="Productions" attrs="{'invisible': [('productions','=',[])]}">
+	                            <field name="productions">
+	                                <tree>
+	                                    <field name="priority"/>
+                                        <field name="product_id"/>
+                                        <field name="categ_id"/>
+                                        <field name="mo_lv"/>
+                                        <field name="product_qty"/>
+                                        <field name="qty_produced"/>
+                                        <field name="percent_progressed_wo" widget="progressbar"/>
+                                        <field name="time_progressed_wo" widget="progressbar"/>
+                                        <field name="name"/>
+	                                    <field name="state"/>
+	                                </tree>
+	                            </field>
+                            </page>
+                            <page string="WorkOrders" attrs="{'invisible': [('workorder_ids','=',[])]}">
+	                            <field name="workorder_ids">
+	                                <tree>
+	                                    <field name="product_id"/>
+                                        <field name="department_id"/>
+                                        <field name="mo_lv"/>
+                                        <field name="qty_production" string="Plan Qty"/>
+                                        <field name="qty_produced" string="Actual Aty"/>
+                                        <field name="duration_expected"/>
+                                        <field name="duration"/>
+                                        <field name="production_state"/>
+	                                    <field name="state"/>
+	                                </tree>
+	                            </field>
+                            </page>
+                        </notebook>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record id="plan_order_line_pivot" model="ir.ui.view">
+            <field name="name">Plan Line</field>
+            <field name="model">plan.order.line</field>
+            <field name="arch" type="xml">
+                <pivot string="Plan Line">
+                    <field name="plan_id" type="row"/>
+                    <field name="product_id" type="row"/>
+                    <field name="percent_progressed" type="measure"/>
+                    <field name="wo_progressed" type="measure"/>
+                    <field name="time_progressed" type="measure"/>
+                </pivot>
+            </field>
+        </record>
+
+        <record id="plan_order_line_graph" model="ir.ui.view">
+            <field name="name">Plan Line</field>
+            <field name="model">plan.order.line</field>
+            <field name="arch" type="xml">
+                <graph string="Plan Line" order="wo_progressed ASC">
+                    <field name="plan_id" type="row"/>
+                    <field name="wo_progressed" type="measure"/>
+                </graph>
+            </field>
+        </record>
+
+        <record id="action_plan_order_line_graph_view" model="ir.actions.act_window">
+            <field name="name">Plan Order Lines</field>
+            <field name="res_model">plan.order.line</field>
+            <field name="view_mode">graph</field>
+            <field name="view_id" ref="plan_order_line_graph"/>
+            <field name="search_view_id" ref="plan_order_line_search"/>
+            <field name="help" type="html">
+		    	<p class="o_view_nocontent_smiling_face">
+		            Plan Order Line 
+		        </p>
+		    </field>
+        </record>
+
+        <record id="action_mrp_plan_line_view" model="ir.actions.act_window">
+            <field name="name">Plan Lines</field>
+            <field name="res_model">plan.order.line</field>
+            <field name="view_mode">graph,pivot,tree,form</field>
+            <field name="search_view_id" ref="plan_order_line_search"/>
+            <field name="context">{
+                'search_default_by_plan_id': True,
+                'search_default_by_product_id': True,
+                'search_default_todo': True
+            }</field>
+            <field name="help" type="html">
+		    	<p class="o_view_nocontent_smiling_face">
+		            No Plan Line found!
+		        </p>
+		    </field>
+        </record>
+        
+       	<record id="action_open_plan_order_line" model="ir.actions.server">
+	        <field name="name">Plan Order Lines</field>
+	        <field name="model_id" ref="model_plan_order_line"/>
+	        <field name="state">code</field>
+	        <field name="code">
+	            action = model.action_open_plan_order_line()
+	        </field>
+	    </record>
+
+        <record id="action_delete_plan_line" model="ir.actions.server">
+            <field name="name">Delete</field>
+            <field name="model_id" ref="model_plan_order_line"/>
+            <field name="binding_model_id" ref="model_plan_order_line"/>
+            <field name="binding_view_types">list</field>
+            <field name="state">code</field>
+            <field name="code">
+                if records:
+                    for record in records.filtered(lambda x: x.state == 'draft'):
+                        record.unlink()
+            </field>
+        </record>
+
+        <record id="action_cancel_plan_line" model="ir.actions.server">
+            <field name="name">Cancel</field>
+            <field name="model_id" ref="model_plan_order_line"/>
+            <field name="binding_model_id" ref="model_plan_order_line"/>
+            <field name="binding_view_types">list</field>
+            <field name="state">code</field>
+            <field name="code">
+                if records:
+                    records.action_cancel()
+            </field>
+        </record>
+
+    </data>
+</odoo>

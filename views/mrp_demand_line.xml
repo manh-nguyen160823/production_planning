@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+	<record id="mrp_demand_line_search" model="ir.ui.view">
+		<field name="name">mrp_demand_line_search</field>
+		<field name="model">mrp.demand.line</field>
+		<field name="arch" type="xml">
+			<search string="MRP Demand Line">
+				<field name="demand_id"/>
+				<field name="product_tmpl_id" string="Product" filter_domain="['|','|',('product_tmpl_id', 'ilike', self),('bom_id', 'ilike', self),('bom_id.product_id', 'ilike', self)]"/>
+				<field name="categ_id"/>
+				<group expand="0" string="Group By">
+					<filter string="Product" name="by_product_tmpl_id" domain="[]" context="{'group_by': 'product_tmpl_id'}"/>
+					<filter string="Demand Order" name="by_demand_id" domain="[]" context="{'group_by': 'demand_id'}"/>
+					<filter string="Category" name="by_categ_id" domain="[]" context="{'group_by': 'categ_id'}"/>
+					<separator/>
+					<filter string="Forecast type" name="by_forecast_type" domain="[]" context="{'group_by': 'forecast_type'}"/>
+					<filter string="Plan State" name="by_plan_status" domain="[]" context="{'group_by': 'plan_status'}"/>
+				</group>
+				<searchpanel>
+					<field name="plan_status" icon="fa-home" enable_counters="1" select="multi"/>
+					<field name="forecast_type" icon="fa-tasks" enable_counters="1" select="multi"/>
+					<field name="categ_id" icon="fa-tags" enable_counters="1"/>
+				</searchpanel>
+			</search>
+		</field>
+	</record>
+
+	<record id="mrp_demand_order_line_tree_view" model="ir.ui.view">
+		<field name="name">mrp_demand_order_line_tree_view</field>
+		<field name="model">mrp.demand.line</field>
+		<field name="arch" type="xml">
+			<tree string="MRP Demand Lines" sample="1" edit="false" delete="false" create="1">
+				<header>
+					<button name="add_to_plan" type="object" string="Add to Plan" class="oe_highlight"/>
+					<button name="check_products_before_plan" type="object" string="Check Validation" class="oe_highlight"/>
+				</header>
+
+				<field name="company_id" invisible="1"/>
+				<field name="product_tmpl_id"/>
+				<field name="product_id" optional="hide"/>
+				<field name="default_code" />
+				<field name="bom_id"/>
+				<field name="forecast_type"/>
+				<field name="categ_id" optional="hide" attrs="{'invisible': ['|',('categ_id','=',False),('forecast_type','=','item')]}"/>
+				<field name="product_uom_qty"/>
+				<field name="qty_planned"/>
+				<field name="product_uom"/>
+				<field name="price_unit" widget="monetary" decoration-bf="1" optional="show"/>
+				<field name="price_total" sum="price_total" widget="monetary" decoration-bf="1" optional="show"/>
+				<field name="product_uom_category_id" invisible="1"/>
+				<field name="plan_line_ids" optional="hide" widget="many2many_tags"/>
+				<field name="time_progressed" string="Time Progressed" widget="progressbar" optional="show"/>
+				<field name="percent_progressed" string="Progressed (%)" widget="progressbar" optional="show"/>
+				<field name="note" string="Note"/>
+				<field name="plan_status" decoration-danger="plan_status == 'to_plan'" decoration-success="plan_status == 'partially' or plan_status == 'fully'" widget="badge" optional="show"/>
+				<field name="currency_id" invisible="1"/>
+				<field name="company_id" invisible="1"/>
+			</tree>
+		</field>
+	</record>
+
+
+	<record id="mrp_demand_order_line_form_view" model="ir.ui.view">
+		<field name="name">mrp_demand_order_form</field>
+		<field name="model">mrp.demand.line</field>
+		<field name="arch" type="xml">
+			<form string="MRP Demand Line" edit="false" delete="false" create="false">
+				<header>
+					<field name="plan_status" widget="statusbar" statusbar_visible="no,to_plan,partially,fully"/>
+				</header>
+				<sheet>
+					<group>
+						<group>
+							<field name="product_tmpl_id" domain="['|', ('company_id', '=', False), ('company_id', '=', parent.company_id)]" force_save="1" widget="many2one_barcode" options="{'no_open': True, 'no_create': True}"/>
+
+							<field name="product_id"/>
+							<field name="default_code" />
+							<label for="product_uom_qty"/>
+							<div class="o_row">
+								<field name="product_uom_qty"/>
+								<field name="product_uom" force_save="1" groups="uom.group_uom" class="oe_no_button" options="{'no_open': True, 'no_create': True}"/>
+							</div>
+							<label for="qty_planned"/>
+							<div class="o_row">
+								<field name="qty_planned"/>
+								<field name="product_uom" force_save="1" groups="uom.group_uom" class="oe_no_button" options="{'no_open': True, 'no_create': True}"/>
+							</div>
+							<field name="product_uom_category_id" invisible="1"/>
+							<field name="price_unit" widget="monetary" decoration-bf="1"/>
+							<field name="price_total" widget="monetary" decoration-bf="1"/>
+						</group>
+						<group>
+							<field name="forecast_type"/>
+							<field name="bom_id" force_save="1" options="{'no_open': True, 'no_create': True}"/>
+							<field name="categ_id" force_save="1" attrs="{'invisible': [('forecast_type','=','item')]}" options="{'no_open': True, 'no_create': True}"/>
+							<label for="date_start" string="Date"/>
+							<div class="o_row">
+								<field name="date_start" class="oe_inline"/>
+								<span class="o_form_label mx-3"> - </span>
+								<field name="date_end" class="oe_inline"/>
+							</div>
+							<field name="time_progressed" string="Time Progressed" widget="progressbar"/>
+							<field name="percent_progressed" string="Progressed (%)" widget="progressbar"/>
+
+							<field name="state" invisible="1"/>
+							<field name="company_id" invisible="1"/>
+							<field name="sequence" invisible="1"/>
+						</group>
+					</group>
+					<notebook>
+						<page string="Plan Order Lines" attrs="{'invisible': [('plan_line_ids','=',[])]}">
+							<field name="plan_line_ids">
+								<tree string="Order Lines">
+									<field name="plan_id" decoration-info="1"/>
+									<field name="qty_need" optional="show"/>
+									<field name="qty_planned" optional="show"/>
+									<field name="qty_remain" optional="show"/>
+									<field name="qty_produce" optional="show"/>
+									<field name="qty_done" decoration-success="qty_done - qty_produce == 0" decoration-warning="qty_done - qty_produce &gt; 0.0001"/>
+									<field name="note" optional="hide"/>
+									<field name="company_id" invisible="1"/>
+									<field name="lock_modify" invisible="1"/>
+									<field name="state" invisible="1"/>
+								</tree>
+							</field>
+						</page>
+						<!-- <page string="Linked Moves" attrs="{'invisible': [('move_ids','=',[])]}">
+                    		<field name="move_ids"/>
+                    	</page> -->
+					</notebook>
+				</sheet>
+			</form>
+		</field>
+	</record>
+
+	<record id="mrp_demand_line_pivot" model="ir.ui.view">
+		<field name="name">mrp_demand_line_pivot</field>
+		<field name="model">mrp.demand.line</field>
+		<field name="arch" type="xml">
+			<pivot string="MRP Demand Line">
+				<field name="demand_id" type="row"/>
+				<field name="product_tmpl_id" type="row"/>
+				<field name="product_uom_qty" type="measure"/>
+				<field name="qty_planned" type="measure"/>
+			</pivot>
+		</field>
+	</record>
+
+	<record id="action_mrp_demand_order_line" model="ir.actions.act_window">
+		<field name="name">MRP Demand Lines</field>
+		<field name="type">ir.actions.act_window</field>
+		<field name="res_model">mrp.demand.line</field>
+		<field name="view_mode">tree,pivot,form</field>
+		<field name="search_view_id" ref="mrp_demand_line_search"/>
+		<field name="domain">[]</field>
+		<field name="context">{'search_default_by_demand_id': True}</field>
+		<field name="help" type="html">
+			<p class="o_view_nocontent_smiling_face">
+	            No MRP Demand Line found!
+			</p>
+		</field>
+	</record>
+
+</odoo>

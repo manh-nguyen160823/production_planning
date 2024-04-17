@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <record id="demand_order_type_search_view" model="ir.ui.view">
+            <field name="name">demand.order.type.search.view</field>
+            <field name="model">demand.order.type</field>
+            <field name="arch" type="xml">
+                <search string="Plan Order Type">
+                    <field name="name"/>
+                    <filter string="Archived" name="inactive" domain="[('active','=',False)]"/>
+                </search>
+            </field>
+        </record>
+
+        <record id="demand_order_type_tree_view" model="ir.ui.view">
+            <field name="name">demand.order.type.tree.view</field>
+            <field name="model">demand.order.type</field>
+            <field name="arch" type="xml">
+                <tree string="Plan Order Types">
+                    <field name="sequence" widget="handle"/>
+                    <field name="name"/>
+                    <field name="sequence_id"/>
+                    <field name="active" widget="boolean_toggle" invisible="1"/>
+                </tree>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="demand_order_type_form_view">
+            <field name="name">Plan Order Types</field>
+            <field name="model">demand.order.type</field>
+            <field name="arch" type="xml">
+                <form string="Plan Order Types">
+                    <sheet>
+                        <widget name="web_ribbon" title="Archived" bg_color="bg-danger" attrs="{'invisible': [('active', '=', True)]}"/>
+                        <group>
+                            <group>
+                                <field name="active" widget="boolean_toggle" invisible="1"/>
+                                <field name="name"/>
+                                <field name="sequence"/>
+                                <field name="sequence_id" groups="base.group_no_one"/>
+                            </group>
+                            <group>
+                                <field name="company_id" groups="base.group_multi_company" options="{'no_create': True}"/>
+                            </group>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record id="demand_order_type_action" model="ir.actions.act_window">
+            <field name="name">Plan Type Overview</field>
+            <field name="res_model">demand.order.type</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="view_mode">kanban,form</field>
+            <field name="help" type="html">
+              <p class="o_view_nocontent_smiling_face">
+                Create a new Plan Order type
+              </p><p>
+                The Plan Order type system allows you to assign each Plan Order
+                Plan Order a specific type which will alter its views accordingly.
+                On the Plan Order type you could e.g. specify if packing is needed by default,
+                if it should show the customer.
+              </p>
+            </field>
+        </record>
+
+    </data>
+</odoo>

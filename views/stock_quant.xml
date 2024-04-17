@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <record id="quant_search_view_inherit" model="ir.ui.view">
+            <field name="name">quant_search_view_inherit</field>
+            <field name="model">stock.quant</field>
+            <field name="inherit_id" ref="stock.quant_search_view"/>
+            <field name="arch" type="xml">
+                <xpath expr="//search" position="replace">
+                    <search string="Quants">
+                        <field name="product_id"/>
+                        <field name="location_id"/>
+                        <field name="package_id" groups="stock.group_tracking_lot"/>
+                        <field name="lot_id" groups="stock.group_production_lot"/>
+                        <field name="owner_id" groups="stock.group_tracking_owner"/>
+                        <group expand='0' string='Filters'>
+                            <filter name='internal_loc' string="Internal Locations" domain="[('location_id.usage','=', 'internal')]"/>
+                            <filter name='transit_loc' string="Transit Locations" domain="[('location_id.usage' ,'=', 'transit')]"/>
+                            <filter name="on_hand" string="On Hand" domain="[('on_hand', '=', True)]"/>
+                            <separator/>
+                            <filter name="negative" string="Negative Stock" domain="[('quantity', '&lt;', 0.0)]"/>
+                            <filter name="positive" string="Positive Stock" domain="[('quantity', '&gt;', 0.0)]"/>
+                            <filter name="reserved" string="Reservations" domain="[('reserved_quantity', '&gt;', 0.0)]"/>
+                            <separator/>
+                            <filter name="filter_in_date" date="in_date"/>
+                        </group>
+                        <group expand='0' string='Group by...'>
+                            <filter string='Location' name="locationgroup" domain="[]" context="{'group_by': 'location_id'}"/>
+                            <filter string='Product' name="productgroup" context="{'group_by': 'product_id'}"/>
+                            <filter string='Owner' name="owner" context="{'group_by': 'owner_id'}" groups="stock.group_tracking_owner"/>
+                            <filter string='Lot/Serial Number' name="Lot_Serial_number" context="{'group_by': 'lot_id'}" groups="stock.group_production_lot"/>
+                            <filter string='Package' name="package" domain="[]" context="{'group_by': 'package_id'}" groups="stock.group_tracking_lot"/>
+                            <filter string='Company' name="company" domain="[]" context="{'group_by': 'company_id'}" groups="base.group_multi_company"/>
+                        </group>
+                    </search>
+                </xpath>
+            </field>
+        </record>
+
+    </data>
+</odoo>

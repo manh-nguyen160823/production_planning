@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <data noupdate="1">
+
+        <record id="module_category_planning_management" model="ir.module.category">
+            <field name="name">Planning</field>
+            <field name="sequence">20</field>
+            <field name="parent_id" eval="False"/>
+        </record>
+
+        <record id="module_category_planning_mrp" model="ir.module.category">
+            <field name="name">Planning</field>
+            <field name="parent_id" ref="module_category_planning_management"/>
+            <field name="description">Helps you manage plan and tracking material, production, etc...</field>
+            <field name="sequence">10</field>
+        </record>
+
+        <record id="planning_mrp_viewer" model="res.groups">
+            <field name="name">Viewer</field>
+            <field name="implied_ids" eval="[(4, ref('mrp.group_mrp_user'))]"/>
+            <field name="category_id" ref="module_category_planning_mrp"/>
+        </record>
+
+        <record id="planning_mrp_user" model="res.groups">
+            <field name="name">User</field>
+            <field name="implied_ids" eval="[(4, ref('planning_mrp_viewer'))]"/>
+            <field name="category_id" ref="module_category_planning_mrp"/>
+        </record>
+
+        <record id="planning_mrp_leader" model="res.groups">
+            <field name="name">Leader</field>
+            <field name="implied_ids" eval="[(4, ref('planning_mrp_user'))]"/>
+            <field name="category_id" ref="module_category_planning_mrp"/>
+        </record>
+
+        <record id="planning_mrp_manager" model="res.groups">
+            <field name="name">Manager</field>
+            <field name="category_id" ref="module_category_planning_mrp"/>
+            <field name="implied_ids" eval="[(4, ref('planning_mrp_leader'))]"/>
+            <field name="users" eval="[(4, ref('base.user_root')), (4, ref('base.user_admin'))]"/>
+        </record>
+
+    </data>
+</odoo>

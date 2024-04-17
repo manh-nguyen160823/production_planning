@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="procurement_group_tree_view" model="ir.ui.view">
+            <field name="name">procurement.group.tree</field>
+            <field name="model">procurement.group</field>
+            <field name="arch" type="xml">
+                <tree string="Procurements">
+                    <field name="name"/>
+                    <field name="move_type"/>
+                    <field name="plan_id"/>
+                    <field name="plan_line_id"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="procurement_group_form_view_inherit" model="ir.ui.view">
+            <field name="name">procurement.group.form.inherit</field>
+            <field name="model">procurement.group</field>
+            <field name="inherit_id" ref="stock.procurement_group_form_view"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='move_type']" position="after">
+                    <field name="plan_id"/>
+                    <field name="plan_line_id"/>
+                </xpath>
+                <xpath expr="//form/sheet/group" position="after">
+                    <notebook>
+                        <page string="Related Stock Moves" name="stock_move_ids">
+                            <field name="stock_move_ids">
+                                <tree>
+                                    <field name="date" groups="base.group_no_one" decoration-danger="(state not in ('cancel','done')) and date > current_date" />
+                                    <field name="reference"/>
+                                    <field name="picking_type_id" invisible="1"/>
+                                    <field name="create_date" invisible="1" groups="base.group_no_one"/>
+                                    <field name="product_id"/>
+                                    <field name="location_id" options="{'no_create': True}" string="From"/>
+                                    <field name="location_dest_id" options="{'no_create': True}" string="To"/>
+                                    <field name="product_uom_qty"/>
+                                    <field name="product_uom" options="{'no_open': True, 'no_create': True}" string="Unit of Measure" groups="uom.group_uom"/>
+                                    <field name="company_id" groups="base.group_multi_company"/>
+                                    <field name="state" widget='badge' decoration-success="state == 'done'" decoration-info="state not in ('done', 'cancel')"/>
+                                </tree>
+                            </field>
+                        </page>
+
+                        <page string="Related Productions" name="mrp_production_ids">
+                            <field name="mrp_production_ids">
+                                <tree>
+                                    <field name="priority" optional="show" widget="priority" nolabel="1"/>
+                                    <field name="message_needaction" invisible="1"/>
+                                    <field name="name" decoration-bf="1"/>
+                                    <field name="date_planned_start" readonly="1" optional="show" widget="remaining_days"/>
+                                    <field name="date_deadline" widget="remaining_days" attrs="{'invisible': [('state', 'in', ['done', 'cancel'])]}" optional="hide"/>
+                                    <field name="product_id" readonly="1" optional="show"/>
+                                    <field name="product_uom_id" string="Unit of Measure" options="{'no_open':True,'no_create':True}" groups="uom.group_uom" optional="show"/>
+                                    <field name="lot_producing_id" optional="hide"/>
+                                    <field name="bom_id" readonly="1" optional="hide"/>
+                                    <field name="origin" optional="show"/>
+                                    <field name="user_id" optional="hide" widget="many2one_avatar_user"/>
+                                    <field name="reservation_state" optional="show"/>
+                                    <field name="product_qty" sum="Total Qty" string="Quantity" readonly="1" optional="show"/>
+                                    <field name="company_id" readonly="1" groups="base.group_multi_company" optional="show"/>
+                                    <field name="state" optional="show" widget='badge' decoration-success="state == 'done'" decoration-info="state not in ('done', 'cancel')"/>
+                                    <field name="activity_exception_decoration" widget="activity_exception"/>
+                                    <field name="delay_alert_date" invisible="1"/>
+                                </tree>
+                            </field>
+                        </page>
+                    </notebook>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="action_procurement_group" model="ir.actions.act_window">
+            <field name="name">Procurement Groups</field>
+            <field name="res_model">procurement.group</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+    </data>
+</odoo>

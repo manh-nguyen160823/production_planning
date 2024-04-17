@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="mrp_workcenter_productivity_search_view_inherit" model="ir.ui.view">
+	    <field name="name">mrp_workcenter_productivity_search_view_inherit</field>
+	    <field name="model">mrp.workcenter.productivity</field>
+        <field name="inherit_id" ref="mrp.oee_search_view"/>
+	    <field name="arch" type="xml">
+            <xpath expr="//field[@name='workcenter_id']" position="before">
+                <field name="product_id"/>
+                <field name="plan_id"/>
+                <field name="plan_line_id"/>
+                <field name="department_id"/>
+                <field name="error"/>
+                <field name="description"/>
+            </xpath>
+
+            <xpath expr="//filter[@name='availability']" position="before">
+                <filter name="filter_date_start" string="Start Date" date="date_start"/>
+                <filter name="today" help="Log on Today" string="Today"
+                    domain="[('date_start', '=', (context_today()).strftime('%Y-%m-%d'))]"/>
+                <filter name="yesterday" help="Log on Yesterday" string="Yesterday"
+                    domain="[('date_start', '=', (context_today() - datetime.timedelta(1)).strftime('%Y-%m-%d'))]"/>
+                <filter name="7days" help="Logs in last 7 days" string="7 days"
+                    domain="[('date_start', '&gt;=', (context_today() - datetime.timedelta(7)).strftime('%Y-%m-%d')),]"/>
+                <filter name="30days" help="Logs in last 30 days" string="30 days"
+                    domain="[('date_start', '&gt;=', (context_today() - datetime.timedelta(30)).strftime('%Y-%m-%d'))]"/>
+                <filter name="job_todo" string="Job To do" domain="[('state','in',['progress','pause'])]"/>
+                <filter name="job_done" string="Job Finished" domain="[('state','=','done')]"/>
+                <filter name="job_cancel" string="Job Canceled" domain="[('state','=','cancel')]"/>
+            </xpath>
+
+            <xpath expr="//filter[@name='user']" position="before">
+                <filter string="Start Date" name="group_date_start" domain="[]" context="{'group_by': 'date_start:day', 'order': 'date_start desc'}"/>
+                <filter string="Department" name="group_department" domain="[]" context="{'group_by': 'department_id'}"/>
+                <filter string="Plan Order" name="group_plan" domain="[]" context="{'group_by': 'plan_id'}"/>
+                <filter string="Plan Line" name="group_plan_line" domain="[]" context="{'group_by': 'plan_line_id'}"/>
+                <filter string="Product" name="group_product" domain="[]" context="{'group_by': 'product_id'}"/>
+                <filter string="Root Item" name="group_root_item" domain="[]" context="{'group_by': 'root_item'}"/>
+                <filter string="Work Order" name="group_work_order" domain="[]" context="{'group_by': 'workorder_id'}"/>
+            </xpath>
+
+            <xpath expr="//search" position="inside">
+                <searchpanel>
+                    <field name="department_id" icon="fa-tags" enable_counters="1"/>
+                </searchpanel>
+            </xpath>
+
+	    </field>
+	</record>
+
+    <record id="mrp_workcenter_productivity_tree_view_inherit" model="ir.ui.view">
+        <field name="name">mrp_workcenter_productivity_tree_view_inherit</field>
+        <field name="model">mrp.workcenter.productivity</field>
+        <field name="inherit_id" ref="mrp.oee_tree_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='date_end']" position="after">
+                <field name="plan_id"/>
+	            <field name="plan_line_id"/>
+                <field name="product_id"/>
+                <field name="root_item"/>
+                <field name="department_id"/>
+                <field name="sequence" invisible="1"/>
+                <field name="production_id" invisible="1"/>
+                <field name="is_routing" invisible="1"/>
+            </xpath>
+            <xpath expr="//field[@name='duration']" position="after">
+                <field name="qty_produced"/>
+                <field name="qty_product"/>
+                <field name="loss_type"/>
+                <field name="capacity"/>
+                <field name="error"/>
+                <field name="description"/>
+                <field name="data_type"/>
+                <field name="state"/>
+            </xpath>
+            <xpath expr="//field[@name='qty_product']" position="after">
+                <xpath expr="//field[@name='loss_id']" position="move"/>
+            </xpath>
+            <xpath expr="//field[@name='company_id']" position="attributes">
+		        <attribute name="invisible">1</attribute>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="mrp_workcenter_productivity_pivot_view_inherit" model="ir.ui.view">
+        <field name="name">mrp_workcenter_productivity_pivot_view_inherit</field>
+        <field name="model">mrp.workcenter.productivity</field>
+        <field name="inherit_id" ref="mrp.oee_pivot_view"/>
+        <field name="arch" type="xml">
+            <pivot position="replace">
+                <pivot string="Workcenter Productivity" sample="1">
+                    <field name="date_start" type="row" interval="day"/>
+                    <field name="plan_id" type="col"/>
+                    <field name="root_item" type="col"/>
+                    <field name="qty_produced" type="measure"/>
+                </pivot>
+            </pivot>
+        </field>
+    </record>
+
+    <record id="mrp.mrp_workcenter_productivity_report" model="ir.actions.act_window">
+        <field name="name">Job Detail</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">mrp.workcenter.productivity</field>
+        <field name="view_mode">graph,pivot,form</field>
+	    <field name="search_view_id" ref="mrp_workcenter_productivity_search_view_inherit"/>
+        <field name="domain">[]</field>
+        <field name="context">{'search_default_7days': 1, 'create':False,'edit':False}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Overall Equipment Effectiveness: no working or blocked time
+            </p>
+        </field>
+    </record>
+
+</odoo>

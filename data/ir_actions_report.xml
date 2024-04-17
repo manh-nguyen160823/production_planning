@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <record id="get_list_demand_order_xlsx" model="ir.actions.report">
+        <field name="name">Print Xlsx Demand Order</field>
+        <field name="model">mrp.demand.order</field>
+        <field name="binding_model_id" ref="model_mrp_demand_order"/>
+        <field name="binding_type">report</field>
+        <field name="report_type">xlsx</field>
+        <field name="report_name">erpvn_planning_management.get_list_demand_order</field>
+        <field name="report_file">List demand order</field>
+        <field name="attachment_use">False</field>
+    </record>
+
+</odoo>

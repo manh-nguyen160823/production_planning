@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <menuitem name="Plan MRP" id="menu_planning_root" groups="planning_mrp_viewer"
+            web_icon="erpvn_planning_management,static/description/icon.png"/>
+
+            <menuitem name="Overview" id="menu_dashboard_plan_resource" action="erpvn_planning_management.menu_mrp_workorder_todo"
+                parent="menu_planning_root" sequence="10" groups="planning_mrp_viewer"/>
+
+                    <menuitem id="action_plan_workorder_menu" name="Work Order" action="erpvn_planning_management.menu_mrp_workorder_todo"
+                        parent="menu_dashboard_plan_resource" sequence="10"/>
+
+                    <menuitem name="Human Resource" id="menu_employee_resource_calendar" action="erpvn_hr_mrp.action_employee_resource_calendar"
+                        parent="menu_dashboard_plan_resource" sequence="30"/>
+
+            <menuitem name="Production Schedule" id="planning_master_schedule"
+                parent="menu_planning_root" groups="planning_mrp_viewer" sequence="20"/>
+
+                <menuitem name="Plan Order" id="menu_plan_order" action="action_open_plan_order"
+                    parent="planning_master_schedule" sequence="10"/>
+                
+                <menuitem name="Plan Lines" id="menu_plan_order_line" action="action_open_plan_order_line"
+                    parent="planning_master_schedule" sequence="20" groups="planning_mrp_viewer"/>
+
+                <menuitem name="Demand Order" id="menu_action_forecast_order" action="action_mrp_demand_order_view"
+                    parent="planning_master_schedule" sequence="30" groups="planning_mrp_viewer"/>
+               
+                <menuitem name="Demand Order Lines" id="menu_action_forecast_order_line" action="action_mrp_demand_order_line"
+                    parent="planning_master_schedule" sequence="40"/>
+
+                <menuitem name="Import Demand Order" id="menu_action_import_demand_order" action="action_import_demand_order"
+                    parent="planning_master_schedule" sequence="70"/>
+
+            <menuitem name="Product Data" id="menu_plan_product"
+                parent="menu_planning_root" sequence="40" groups="planning_mrp_viewer"/>
+
+                <menuitem id="action_plan_product_template" name="Product Template" action="product.product_template_action"
+                    parent="menu_plan_product" sequence="10"/>
+                
+                <menuitem id="action_plan_product_variant" name="Product Variant" action="stock.stock_product_normal_action"
+                    parent="menu_plan_product" sequence="20"/>
+
+            <menuitem name="Resource" id="menu_plan_resource"
+                parent="menu_planning_root" sequence="50" groups="planning_mrp_viewer"/>
+
+                <menuitem id="menu_mrp_workcenter" action="mrp.mrp_workcenter_action"
+                    parent="menu_plan_resource" sequence="10"/>
+
+                <menuitem id="menu_resource_resource" action="resource.action_resource_resource_tree"
+                    parent="menu_plan_resource" sequence="20"/>
+                    
+                <menuitem id="menu_resource_calendar" action="resource.action_resource_calendar_form"
+                    parent="menu_plan_resource" sequence="30"/>
+
+            <menuitem name="Manufacturing" id="menu_plan_production_order"
+                parent="menu_planning_root" sequence="90" groups="planning_mrp_viewer"/>
+            
+                <menuitem id="action_plan_production_order" name="Production Order" action="mrp.mrp_production_action"
+                    parent="menu_plan_production_order" sequence="10"/>
+                
+                <menuitem id="action_plan_workorder" name="Work Order" action="mrp.mrp_workorder_todo"
+                    parent="menu_plan_production_order" sequence="20"/>
+                    
+            <menuitem name="Report" id="menu_plan_report" 
+                parent="menu_planning_root" sequence="100" groups="planning_mrp_viewer"/>
+
+            <menuitem name="Configuration" id="menu_plan_config" action="action_mrp_plan_order_view"
+                parent="menu_planning_root" sequence="110" groups="planning_mrp_manager"/>
+
+                <menuitem id="plan_setting_menu" name="Settings" sequence="10"
+                    parent="menu_plan_config" action="planning_configuration_action"/>
+
+                <menuitem id="menu_demand_order_type" name="Demand Order Type" sequence="30"
+                    parent="menu_plan_config" action="demand_order_type_action"/>
+
+        <menuitem action="mrp.mrp_production_action" id="mrp.menu_mrp_production_action" parent="mrp.menu_mrp_manufacturing"
+            sequence="10"/>
+
+        <menuitem action="mrp.mrp_workcenter_productivity_action" id="menu_mrp_workcenter_productivity_action" parent="mrp.menu_mrp_manufacturing"
+            sequence="15"/>
+
+<!-- Menu Manufactur -->
+        <menuitem action="action_mrp_plan_order_view" id="menu_mrp_production_plan_order_action"
+            parent="mrp.mrp_planning_menu_root" sequence="5" groups="mrp.group_mrp_user,planning_mrp_leader"/>
+
+        <menuitem id="stock_move_mrp_menu" name="Stock Moves"
+            sequence="40" parent="mrp.menu_mrp_manufacturing" groups="stock.group_stock_user"/>
+
+            <menuitem id="stock_move_mrp_menu_icooming" name="Incoming" action="odb_stock_management.action_stock_move_incomming"
+                sequence="10" parent="stock_move_mrp_menu" groups="stock.group_stock_user"/>
+
+            <menuitem id="stock_move_mrp_menu_internal" name="Internal" action="odb_stock_management.action_stock_move_internal"
+                sequence="20" parent="stock_move_mrp_menu" groups="stock.group_stock_user"/>
+
+            <menuitem id="stock_move_mrp_menu_outgoing" name="Outgoing" action="odb_stock_management.action_stock_move_outgoing"
+                sequence="30" parent="stock_move_mrp_menu" groups="stock.group_stock_user"/>
+        
+        <menuitem id="mrp.menu_mrp_workcenter_productivity_report" name="Job Detail" parent="mrp.menu_mrp_reporting"
+            action="mrp.mrp_workcenter_productivity_report" groups="mrp.group_mrp_routings" sequence="10"/>
+
+        <menuitem id="stock_move_mrp_menu_raw_consumable" name="Raws Consumed"
+            action="action_view_raw_consumable" sequence="50" parent="mrp.menu_mrp_manufacturing"
+            groups="planning_mrp_viewer,mrp.group_mrp_user"/>
+
+<!-- Menu Inventory -->
+        <menuitem action="action_procurement_group" id="menu_action_procurement_group" parent="stock.menu_warehouse_config" sequence="100" groups="base.group_no_one"/>
+
+    </data>
+</odoo>

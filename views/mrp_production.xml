@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+
+        <record id="mrp_production_search_view_inherit" model="ir.ui.view">
+            <field name="name">mrp.planning.search.view.inherit</field>
+            <field name="model">mrp.production</field>
+            <field name="inherit_id" ref="erpvn_mrp_management.mrp_production_search_view_inherit"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='product_id']" position="before">
+                    <field name="plan_id"/>
+                    <field name="root_item"/>
+                </xpath>
+                <xpath expr="//search/group/filter[@name='product']" position="after">
+                    <filter string="Plan Order" name="group_plan_id" domain="[]" context="{'group_by': 'plan_id'}"/>
+                    <filter string="Root Items" name="group_root_item_id" domain="[]" context="{'group_by': 'root_item'}"/>
+                    <filter string="Plan Lines" name="group_plan_line_id" domain="[]" context="{'group_by': 'plan_line_id'}"/>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="mrp_plan_production_tree_view_inherit" model="ir.ui.view">
+            <field name="name">mrp.plan.production.tree.inherit</field>
+            <field name="model">mrp.production</field>
+            <field name="inherit_id" ref="erpvn_mrp_management.mrp_production_tree_view_inherit"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='product_uom_id']" position="after">
+                    <field name="plan_id"/>
+                    <field name="root_item"/>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="mrp_production_form_view_planning_inherit" model="ir.ui.view">
+            <field name="name">Mrp Production</field>
+            <field name="model">mrp.production</field>
+            <field name="inherit_id" ref="mrp.mrp_production_form_view"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='bom_id']" position="after">
+                    <field name="plan_id" attrs="{'readonly': [('state', '!=', 'draft')]}"/>
+                    <field name="plan_line_id" attrs="{'readonly': [('state', '!=', 'draft')]}"/>
+                </xpath>
+                <xpath expr="//group[@name='group_extra_info']//field[@name='company_id']" position="after">
+                    <field name="percent_progressed_wo" string="Quantity Progress MO" widget="progressbar"/>
+                    <field name="time_progressed_wo" string="Time Progress MO" widget="progressbar"/>
+                    <field name="percent_progressed_bom" string="Quantity All Progress" widget="progressbar"/>
+                    <field name="time_progressed_bom" string="Time All Progress" widget="progressbar"/>
+                </xpath>
+            </field>
+        </record>
+
+    </data>
+</odoo>

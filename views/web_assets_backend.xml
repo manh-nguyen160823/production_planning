@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <template id="assets_backend" name="plan_mrp_assets" inherit_id="web.assets_backend">
+        <xpath expr="//link[last()]">
+            <link type="text/scss" rel="stylesheet" href="/erpvn_planning_management/static/src/scss/plan_order_timeline_progress.scss"/>
+        </xpath>
+        <xpath expr="//script[@src='/board/static/src/js/board_view.js']" position="replace">
+            <script type="text/javascript" src="/erpvn_planning_management/static/src/js/board_view.js"/>
+        </xpath>
+    </template>
+
+    <template id="assets_erpvn_planning_management_backend" inherit_id="web.assets_backend" name="erpvn_planning_management assets backend">
+        <xpath expr="script[last()]" position="after">
+            <script type="text/javascript" src="/erpvn_planning_management/static/src/js/product_configurator_widget.js"/>
+            <script type="text/javascript" src="/erpvn_planning_management/static/src/js/demand_product_configurator_widget.js"></script>
+            <script type="text/javascript" src="/erpvn_planning_management/static/src/js/product_configurator_renderer.js"></script>
+            <script type="text/javascript" src="/erpvn_planning_management/static/src/js/product_configurator_controller.js"></script>
+            <script type="text/javascript" src="/erpvn_planning_management/static/src/js/product_configurator_view.js"></script>
+            <script type="text/javascript" src="/erpvn_planning_management/static/src/js/product_configurator_modal.js"></script>
+            <script type="text/javascript" src="/erpvn_planning_management/static/src/js/variant_mixin.js"></script>
+        </xpath>
+    </template>
+
+</odoo>

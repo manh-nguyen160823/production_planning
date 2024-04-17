@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="wizard_import_demand_order" model="ir.ui.view">
+        <field name="name">wizard.import.mrp.demand.order</field>
+        <field name="model">wizard.import.mrp.demand.order</field>
+        <field name="arch" type="xml">
+            <form string="Import Sale Order Lines">
+                <group>
+                    <group>
+                        <field name="import_type"/>
+                    </group>
+                    <group>
+                        <field name="file" attrs="{'invisible':[('import_type', 'in', ['export'])]}"/>
+                        <field name="demand_order_ids" attrs="{'invisible':[('import_type', 'in', ['demand_order','demand_line'])]}"  widget='many2many_tags'/>
+                    </group>
+                </group>
+                <group>
+                    <field name="demand_order_id" domain="[('state','=','draft')]" attrs="{'invisible':[('import_type', 'in', ['demand_order','export'])]}"/>
+                </group>
+                <footer>
+                    <button name="import_forecast_order" string="Import File" type="object" class="btn-primary" attrs="{'invisible':[('import_type', 'in', ['export'])]}"/>
+                    <button name="action_export_order" string="Export File" type="object" class="btn-primary" attrs="{'invisible':[('import_type', 'in', ['demand_order','demand_line'])]}"/>
+                    <button string="Cancel" class="btn-default" special="cancel"/>
+                    <div style="float: right;">
+                        <strong>Download Sample:</strong>
+                        <a role="button" href="/erpvn_planning_management/static/download/demand_order.xlsx" class="btn-primary" style="font-size: 12px; line-height: 1.5; border-radius: 3px; padding: 8px 10px; color: #ffffff;">
+                            <i class="fa fa-download"/> Excel file
+                        </a>
+                    </div>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_import_demand_order" model="ir.actions.act_window">
+        <field name="name">Wizards Import Mrp Demand Order</field>
+        <field name="res_model">wizard.import.mrp.demand.order</field>
+        <field name="view_id" ref="wizard_import_demand_order"/>
+        <field name="target">new</field>
+    </record>
+</odoo>

@@ -1,0 +1,568 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <record id="plan_order_search_view" model="ir.ui.view">
+            <field name="name">plan_order_search_view</field>
+            <field name="model">plan.order</field>
+            <field name="arch" type="xml">
+                <search string="Production Planning">
+                    <field name="name"/>
+                    <filter string="Draft" name="draft" domain="[('state','=','draft')]"/>
+                    <separator/>
+                    <filter string="To Do" name="todo" domain="[('state','not in',['cancel','done'])]"/>
+                    <separator/>
+                    <filter string="Send Request" name="confirm" domain="[('state','=','sent')]"/>
+                    <filter string="Approved" name="approve" domain="[('state','=','approve')]"/>
+                    <separator/>
+                    <filter string="Scheduling" name="schedule" domain="[('state','=','schedule')]"/>
+                    <filter string="Running" name="working" domain="[('state','=','working')]"/>
+                    <separator/>
+                    <filter string="Rejected" name="reject" domain="[('state','=','reject')]"/>
+                    <filter string="Cancel" name="state_plan_cancel" domain="[('state','=','cancel')]"/>
+                    <separator/>
+                    <filter string="Done" name="state_plan_working" domain="[('state','=','done')]"/>
+                    <group expand="0" string="Group By">
+                        <filter string="Warehouse" name="by_warehouse" context="{'group_by':'warehouse_id'}" groups="stock.group_stock_multi_warehouses"/>
+                        <filter string="Company" name="by_company" context="{'group_by':'company_id'}" groups="base.group_multi_company"/>
+                        <separator/>
+                        <filter string="Status" name="by_state" context="{'group_by':'state'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <record id="plan_order_tree_view" model="ir.ui.view">
+            <field name="model">plan.order</field>
+            <field name="arch" type="xml">
+                <tree string="Production Planning">
+                    <field name="name" decoration-bf="1"/>
+                    <field name="warehouse_id" groups="stock.group_stock_multi_warehouses" invisible="1"/>
+                    <field name="create_date" widget="date" optional="hide"/>
+                    <field name="schedule_date_start"/>
+                    <field name="schedule_date_end"/>
+                    <field name="date_due" optional="show"/>
+                    <field name="user_id" readonly="1"/>
+                    <field name="company_id" groups="base.group_multi_company" optional="show" readonly="1"/>
+                    <field name="percent_progressed" optional="show"/>
+                    <field name="state" widget="badge" decoration-success="state == 'done'" decoration-info="state not in ('approve', 'schedule', 'working')" decoration-danger="state == 'cancel'"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="planning_mrp_order_form_views" model="ir.ui.view">
+            <field name="name">planning.mrp.order.form.views</field>
+            <field name="model">plan.order</field>
+            <field name="arch" type="xml">
+                <form string="Production Planning">
+                    <header>
+                        <field name="is_planned" invisible="1"/>
+                        <field name="is_view_force_compute_demand" invisible="1"/>
+
+                        <button name="action_confirm" type="object" string="Send Request" class="btn-primary" attrs="{'invisible':[('state', '!=', 'draft')]}" confirm="Are you sure you want to send request this?" groups="erpvn_planning_management.planning_mrp_user"/>
+                        <button name="action_approve" type="object" string="Approve" 
+                            class="btn-primary" attrs="{'invisible':[('state','!=','sent')]}"
+                            confirm="Confirm to set approved plan and check stocks?" 
+                            groups="erpvn_planning_management.planning_mrp_leader"/>
+
+                        <button name="action_approve_with_schedule" type="object" string="Approve With Delay" 
+                            states="sent" class="btn-warning" groups="base.group_no_one"/>
+
+                        <button name="action_schedule" type="object" string="Run" 
+                            confirm="Confirm to run this plan?" class="btn-primary" 
+                            states="approve" groups="erpvn_planning_management.planning_mrp_user"/>
+
+                        <button name="action_ready" string="Force to Run" type="object" class="btn-warning" states="schedule"
+                            groups="base.group_no_one" confirm="Plan Order will be running now. Are you sure you want this?"/>
+
+                        <button name="action_plan" type="object" string="Start Plan" class="btn-primary" attrs="{'invisible':['|',('state', '!=', 'working'), ('is_planned', '!=', False)]}" groups="erpvn_planning_management.planning_mrp_leader"/>
+                        <button name="action_unplan" type="object" string="Unplan" class="btn-primary" attrs="{'invisible':['|',('state', '!=', 'working'), ('is_planned', '=', False)]}" groups="erpvn_planning_management.planning_mrp_leader"/>
+
+                        <button name="action_run_demand_with_delay" 
+                            string="Run Demands" class="btn-warning" type="object" groups="base.group_no_one"
+                            attrs="{'invisible':[('state', '!=', 'draft')]}"/>
+
+                        <button name="action_set_draft" type="object" string="Set to Draft" 
+                            states="cancel" groups="erpvn_planning_management.planning_mrp_user"/>
+                        <button name="action_close" type="object" string="Close Plan" states="working" class="btn-danger" 
+                            groups="erpvn_planning_management.planning_mrp_leader" confirm="Are you sure you want to close this?"/>
+
+                        <button name="action_confirm_close_plan" type="object" string="Select Plan Line" states="to_close" class="btn-primary" 
+                            groups="erpvn_planning_management.planning_mrp_leader"/>
+
+                        <button name="action_done_plan" type="object" string="Lock Plan" states="to_close" class="btn-success" 
+                            groups="erpvn_planning_management.planning_mrp_leader"/>
+
+                        <button name="action_force_close" type="object" string="Force To Close" states="to_close" class="btn-warning" 
+                            groups="erpvn_planning_management.planning_mrp_leader"/>
+
+                        <button name="action_check_plan_order" type="object" string="Check Plan" states="draft,sent" class="btn-warning" 
+                            groups="erpvn_planning_management.planning_mrp_user"/>
+                            
+                        <button name="action_cancel" type="object" string="Cancel" class="btn-danger" 
+                            states="approve,schedule,working,sent,reject,draft" confirm="Are you sure you want to cancel this?" 
+                            groups="erpvn_planning_management.planning_mrp_leader"/>
+
+                        <field name="state" widget="statusbar" statusbar_visible="draft,sent,approve,working"/>
+                    </header>
+                    <sheet>
+                        <div class="oe_button_box" name="button_box">
+                            <button class="oe_stat_button" name="view_picking" type="object" icon="fa-dropbox"
+                                    attrs="{'invisible':['|',('picking_count','=',0),('state','not in',['schedule','working','done'])]}">
+                                <div class="o_field_widget o_stat_info">
+                                    <span class="o_stat_text">Picking</span>
+                                    <span class="o_stat_value">
+                                        <field name="picking_count"/>
+                                    </span>
+                                </div>
+                            </button>
+                            <button class="oe_stat_button" name="view_stock_move" type="object" icon="fa-retweet"
+                                    attrs="{'invisible':['|',('stock_move_count','=',0),('state','not in',['schedule','working','done'])]}">
+                                <div class="o_field_widget o_stat_info">
+                                    <span class="o_stat_text">Stock Move</span>
+                                    <span class="o_stat_value">
+                                        <field name="stock_move_count"/>
+                                    </span>
+                                </div>
+                            </button>
+                            <button class="oe_stat_button" name="view_mo" type="object" icon="fa-gears" 
+                                    attrs="{'invisible':['|',('mo_count','=',0),('state','not in',['schedule','working','done'])]}">
+                                <div class="o_field_widget o_stat_info">
+                                    <span class="o_stat_text">Production Order</span>
+                                    <span class="o_stat_value">
+                                        <field name="mo_count"/>
+                                    </span>
+                                </div>
+                            </button>
+                            <button class="oe_stat_button" name="view_subcontracting_product" type="object" icon="fa-briefcase" 
+                                    attrs="{'invisible':['|',('state','in',['draft', 'done', 'cancel', 'reject']),('subcontract_count', '=', 0)]}">
+                                <div class="o_field_widget o_stat_info">
+                                    <span class="o_stat_text">Subcontracting</span>
+                                    <span class="o_stat_value">
+                                        <field name="subcontract_count"/>
+                                    </span>
+                                </div>
+                            </button>
+                            <button class="oe_stat_button" name="view_work_order" type="object" icon="fa-qrcode" 
+                                    attrs="{'invisible':['|',('wo_count','=',0),('state','not in',['schedule','working','done'])]}">
+                                <div class="o_field_widget o_stat_info">
+                                    <span class="o_stat_text">WorkOrder</span>
+                                    <span class="o_stat_value">
+                                        <field name="wo_count"/>
+                                    </span>
+                                </div>
+                            </button>
+                            <button class="oe_stat_button" name="view_productivity" type="object" icon="fa-bar-chart-o" 
+                                    attrs="{'invisible':['|',('productivity','=',0),('state','not in',['schedule','working','done'])]}">
+                                <div class="o_field_widget o_stat_info">
+                                    <span class="o_stat_text">Productivity</span>
+                                    <span class="o_stat_value">
+                                        <field name="productivity"/>
+                                    </span>
+                                </div>
+                            </button>
+
+                            <button class="oe_stat_button" name="action_view_raw_material" type="object" icon="fa-sort-amount-desc"
+                                    attrs="{'invisible':[('state','in',['draft', 'done', 'cancel', 'reject'])]}">
+                                <div class="o_field_widget o_stat_info">
+                                    <span class="o_stat_text">Raws &amp; Components</span>
+                                    <span class="o_stat_value">
+                                        <field name="raw_material_count"/>
+                                    </span>
+                                </div>
+                            </button>
+
+                            <button class="oe_stat_button" name="action_view_pickings_not_processed" type="object" icon="fa-dropbox"
+                                    attrs="{'invisible':['|',('picking_not_processed_count','=',0), ('state', '!=', 'to_close')]}">
+                                <div class="o_field_widget o_stat_info">
+                                    <span class="o_stat_text">Transfers To Close</span>
+                                    <span class="o_stat_value">
+                                        <field name="picking_not_processed_count"/>
+                                    </span>
+                                </div>
+                            </button>
+                            <button class="oe_stat_button" name="action_view_moves_not_processed" type="object" icon="fa-retweet"
+                                    attrs="{'invisible':['|',('stock_move_not_processed_count','=',0), ('state', '!=', 'to_close')]}">
+                                <div class="o_field_widget o_stat_info">
+                                    <span class="o_stat_text">Stock Moves To Close</span>
+                                    <span class="o_stat_value">
+                                        <field name="stock_move_not_processed_count"/>
+                                    </span>
+                                </div>
+                            </button>
+                            <button class="oe_stat_button" name="action_view_productions_not_processed" type="object" icon="fa-gears" 
+                                    attrs="{'invisible':['|',('mo_not_processed_count','=',0), ('state', '!=', 'to_close')]}">
+                                <div class="o_field_widget o_stat_info">
+                                    <span class="o_stat_text">Productions To Close</span>
+                                    <span class="o_stat_value">
+                                        <field name="mo_not_processed_count"/>
+                                    </span>
+                                </div>
+                            </button>
+                            <button class="oe_stat_button" name="action_view_workorders_not_processed" type="object" icon="fa-qrcode" 
+                                    attrs="{'invisible':['|',('wo_not_processed_count','=',0), ('state', '!=', 'to_close')]}">
+                                <div class="o_field_widget o_stat_info">
+                                    <span class="o_stat_text">Work Orders To Close</span>
+                                    <span class="o_stat_value">
+                                        <field name="wo_not_processed_count"/>
+                                    </span>
+                                </div>
+                            </button>
+                        </div>
+                        <label for="name" class="oe_edit_only"/>
+                        <h1>
+                            <field name="name"/>
+                        </h1>
+                        <group name="main">
+                            <group name="main_left">
+                                <field name="demand_id" invisible="1"/>
+                                <field name="demand_ids" invisible="1"/>
+                                <field name="origin" invisible="1"/>
+                                
+                                <field name="demands_to_select"
+                                    widget="many2many_tags"
+                                    domain="[('company_id','=',company_id), ('state','=','approve'), ('plan_status','in',['to_plan', 'partially']), ('id','not in',demand_ids)]"
+                                    attrs="{'readonly': [('state', '!=','draft')]}"
+                                    options="{'no_create':True, 'no_open': True}"
+                                    placeholder="Select a Demand Order"/>
+                            </group>
+                            <group name="main_right">
+                                <label for="schedule_date_start" string="Schedule Date"/>
+                                <div class="oe_inline">
+                                    <field name="schedule_date_start" widget="date" class="mr8 oe_inline" placeholder="Schedule Date Start" autocomplete="off"/>
+                                    <strong class="mr8 oe_inline">to</strong>
+                                    <field name="schedule_date_end" widget="date" class="oe_inline" placeholder="Schedule Date End"/>
+                                </div>
+                                <field name="date_due" readonly="1" class="text-danger"/>
+                                <field name="warehouse_id" invisible="1" groups="stock.group_stock_multi_warehouses"/>
+                                <field name="percent_progressed" widget="progressbar" attrs="{'invisible': [('state','!=','working')]}"/>
+                                <field name="time_progressed" widget="progressbar" attrs="{'invisible': [('state','!=','working')]}"/>
+                            </group>
+                        </group>
+                        <field name="description" placeholder="Add description..." attrs="{'readonly': [('state', 'not in', ('draft', 'sent'))]}"/>
+
+                        <notebook>
+                            <page string="Order Lines" name="plan_lines">
+
+                                <button name="action_run_procurement_plan_line" string="Run Procurements"
+                                    groups="erpvn_planning_management.planning_mrp_user" class="btn-link float-right" icon="fa-info-circle" type="object"/>
+
+                                <button name="update_relation_to_production" string="Link Materials"
+                                    attrs="{'invisible': [('state','!=', 'working')]}"
+                                    class="btn-link float-right" icon="fa-tachometer" type="object"
+                                    groups="base.group_no_one"/>
+
+                                <field name="line_ids">
+                                    <tree create="false" editable="bottom">
+                                        <field name="sequence" widget="handle"/>
+                                        <field name="product_tmpl_id" force_save="1" width="2" attrs="{'readonly': [('lock_modify','!=',False)]}" optional="hide"/>
+                                        <field name="product_id" force_save="1" width="2" attrs="{'readonly': [('lock_modify','!=',False)]}"/>
+                                        <field name="default_code" optional="hide"/>
+                                        <field name="name" optional="show" width="2" force_save="1"/>
+                                        <field name="bom_id" width="2" invisible="1" force_save="1"/>
+                                        <field name="att_value_ids" force_save="1" widget="many2many_tags" optional="show"/>
+                                        <field name="uom_id" force_save="1" width="0.5" readonly="1" groups="uom.group_uom"/>
+                                        <field name="schedule_date_start" attrs="{'readonly': [('state', 'not in', ['draft', 'sent', 'approve'])]}"/>
+                                        <field name="schedule_date_end" attrs="{'readonly': [('state', 'not in', ['draft', 'sent', 'approve'])]}"/>
+
+                                        <field name="expect_duration" optional="show"/>
+                                        <field name="time_progressed" string="Time Progress (%)" widget="progressbar" optional="show"/>
+                                        <field name="percent_progressed" string="Progress (%)" widget="progressbar" optional="show"/>
+                                        <field name="demand_line_id" optional="hide"/>
+                                        
+                                        <field name="note" optional="hide"/>
+                                        <field name="company_id" invisible="1"/>
+                                        <field name="lock_modify" invisible="1"/>
+
+                                        <field name="forecast_type" optional="show" widget="badge"/>
+                                        <field name="qty_need" optional="show" decoration-info="1 == 1"/>
+                                        <field name="qty_planned" optional="hide" force_save="1" decoration-info="1 == 1"/>
+                                        <field name="qty_remain" optional="hide" invisible="1"/>
+                                        <field name="qty_onhand" optional="show"/>
+                                        <field name="qty_forecast" optional="hide"/>
+                                        <field name="qty_reserve_plan" optional="show"/>
+                                        <field name="qty_reserve_all" readonly="1" optional="hide"/>
+                                        <field name="qty_available" readonly="1" optional="show"/>
+                                        <field name="qty_deduct" readonly="1" invisible="1"/>
+                                        <field name="qty_produce" optional="show" decoration-bf="1 == 1"/>
+                                        <field name="qty_done" decoration-success="qty_done - qty_produce == 0" decoration-warning="qty_done - qty_produce &gt; 0.0001" attrs="{'column_invisible': [('parent.state','not in',['working','done'])]}"/>
+                                        <field name="state" invisible="1"/>
+                                        <button name="action_cancel" type="object" class="oe_stat_button text-danger" 
+                                            confirm="Are you sure you want to cancel the plan order line? This action can't be undone." options="{&quot;warn&quot;: true}"
+                                            icon="fa-minus-circle" width="0.1" attrs="{'invisible': ['|', '|', ('id', '=', False), ('parent.state', 'in', ['done', 'cancel']), ('state', 'in', ['done', 'cancel'])]}"/>
+                                    </tree>
+                                </field>
+                            </page>
+                            <page string="Sub-Plan Order" attrs="{'invisible': [('child_ids', '=', [])]}">
+                                <field name="child_ids"/>
+                            </page>
+                            <page string="Tools" name="tools">
+                                <span class="o_stat_text">The feature is not ready !!!</span>
+                            </page>
+
+                            <page string="Info" name="info">
+                                <group name="plan_order">
+                                    <group>
+                                        <field name="parent_id" readonly="1" attrs="{'invisible': [('parent_id', '=', False)]}"/>
+                                    </group>
+                                    <group>
+                                        <field name="user_id" attrs="{'invisible': [('user_id', '=', False)]}"/>
+                                        <field name="approver_id" attrs="{'invisible': [('approver_id', '=', False)]}"/>
+                                        <field name="company_id" groups="base.group_multi_company"/>
+                                    </group>
+                                </group>
+                            </page>
+                        </notebook>
+                    </sheet>
+                    <div class="oe_chatter">
+                        <field name="message_follower_ids" widget="mail_followers" groups="base.group_user"/>
+                        <field name="activity_ids" widget="mail_activity"/>
+                        <field name="message_ids" widget="mail_thread"/>
+                    </div>
+                </form>
+            </field>
+        </record>
+
+        <record id="plan_order_kanban" model="ir.ui.view">
+            <field name="name">plan_order_kanban</field>
+            <field name="model">plan.order</field>
+            <field name="arch" type="xml">
+                <kanban string="Production Planning" default_group_by="state" records_draggable="true">
+                    <field name="id"/>
+                    <field name="schedule_date_start"/>
+                    <field name="schedule_date_end"/>
+                    <field name="date_compute"/>
+                    <field name="warehouse_id"/>
+                    <field name="percent_progressed"/>
+                    <field name="time_progressed"/>
+                    <field name="user_id"/>
+                    <field name="state"/>
+                    <field name="color"/>
+                    <templates>
+                        <t t-name="kanban-box">
+                            <!-- Set the Kanban Card color -->
+                            <div t-attf-class="oe_kanban_color_#{kanban_getcolor(record.color.raw_value)} oe_kanban_global_click o_has_icon">
+                                <div class="o_dropdown_kanban dropdown">
+                                    <a class="dropdown-toggle btn" data-toggle="dropdown" role="button" aria-label="Dropdown menu" title="Dropdown menu">
+                                        <span class="fa fa-ellipsis-v"/>
+                                    </a>
+                                    <div class="dropdown-menu" role="menu">
+                                        <!-- Edit and Delete actions, if available: -->
+                                        <t t-if="widget.editable">
+                                            <a role="menuitem" type="edit" class="dropdown-item">Edit</a>
+                                        </t>
+                                        <t t-if="widget.deletable">
+                                            <a role="menuitem" type="delete" class="dropdown-item">Delete</a>
+                                        </t>
+                                        <!-- Color picker option -->
+                                        <ul class="oe_kanban_colorpicker" data-field="color"/>
+                                    </div>
+                                </div>
+                                <div class="oe_kanban_body">
+                                    <div>
+                                        <strong>
+                                            <a type="open">
+                                                <field name="name"/>
+                                            </a>
+                                        </strong>
+                                        <span class="float-right">
+                                            <field name="percent_progressed" widget="percentpie"/>
+                                        </span>
+                                        <br/>
+                                        <div style="font-size:11.5px">
+                                            <span class="fa fa-calendar-check-o" title="Schedule Date"/>
+                                            <field name="schedule_date_start" widget="date"/>
+                                            <span class="fa fa-minus" title="To"/>
+                                            <field name="schedule_date_end" widget="date"/>
+                                        </div>
+                                        <div style="margin-left:59%;margin-top:1.4% !important">
+                                            <field string="Time" name="time_progressed" widget="percentpie"/>
+                                        </div>
+                                        <span style="font-size:11px">
+                                            <label for='date_compute'>Schedule's Hours: </label>
+                                            <span style="font-weight:bold">
+                                                <field name="date_compute"/>
+                                            </span>
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="oe_kanban_footer">
+                                    <div>
+                                        <a type="object" name="action_view_all_mo" style="font-weight:bold;color:red">
+                                            <span style="color:red;font-size:9.8px;font-weight:bold">
+                                                <field name="mo_count"/>
+                                                MO
+                                            </span>
+                                            <span style="font-size:12px;" class="fa fa-angle-double-right fa-lg"/>
+                                        </a>
+                                    </div>
+                                    <div>
+                                        <a type="object" name="action_view_all_productivity" style="font-weight:bold;color:green">
+                                            <span style="color:green;font-size:9.9px;font-weight:bold">
+                                                <field name="productivity"/>
+                                                Job
+                                            </span>
+                                            <span style="font-size:12px;" class="fa fa-angle-double-right fa-lg"/>
+                                        </a>
+                                    </div>
+                                    <div class="oe_kanban_footer_left">
+                                        <div class="o_kanban_record_bottom">
+                                            <div>
+                                                <span style="position: absolute;bottom: 8px;right:8px;font-size: 11.5px;">
+                                                    <img alt="Approve to user" t-att-src="kanban_image('res.users','image_128',record.user_id.raw_value)" style="border-radius:50%;max-width:20px;max-height:20px;min-width:20px;min-height:20px;"/>
+                                                    <field name="user_id"/>
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="oe_clear"/>
+                            </div>
+                        </t>
+                    </templates>
+                </kanban>
+            </field>
+        </record>
+
+        <record id="plan_order_pivot" model="ir.ui.view">
+            <field name="name">plan.order.pivot</field>
+            <field name="model">plan.order</field>
+            <field name="arch" type="xml">
+                <pivot string="Plan Order Analysis" sample="1">
+                    <field name="name" type="row"/>
+                    <field name="schedule_date_start" type="col"/>
+                    <field name="schedule_date_end" type="col"/>
+                    <field name="percent_progressed" type="col"/>
+                    <field name="time_progressed" type="col"/>
+                </pivot>
+            </field>
+        </record>
+
+        <record id="plan_order_graph" model="ir.ui.view">
+            <field name="name">plan.order.graph</field>
+            <field name="model">plan.order</field>
+            <field name="arch" type="xml">
+                <graph string="Plan Order Analysis">
+                    <field name="name" type="row"/>
+                    <field name="percent_progressed" type="measure"/>
+                </graph>
+            </field>
+        </record>
+
+        <record model="ir.actions.act_window" id="action_mrp_plan_order_view">
+            <field name="name">Production Planning</field>
+            <field name="res_model">plan.order</field>
+            <field name="view_mode">tree,kanban,graph,pivot,form,activity</field>
+            <field name="search_view_id" ref="plan_order_search_view"/>
+            <field name="context">{'search_default_todo': True, 'search_default_by_state': True}</field>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+					Create a new planning for production!
+                </p>
+            </field>
+        </record>
+
+
+        <record id="plan_order_cohort_view" model="ir.ui.view">
+            <field name="name">plan.order.cohort.view</field>
+            <field name="model">plan.order</field>
+            <field name="arch" type="xml">
+                <cohort string="Report" date_start="create_date" date_stop="date_end" interval="day" mode="churn" sample="1"/>
+            </field>
+        </record>
+
+        <record model="ir.actions.act_window" id="action_plan_order_cohort_view">
+            <field name="name">Plan Order Cohort</field>
+            <field name="res_model">plan.order</field>
+            <field name="view_mode">cohort</field>
+            <field name="view_id" ref="plan_order_cohort_view"/>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+					Create a new view Cohort planning for production!
+                </p>
+            </field>
+        </record>
+
+        <!-- <record id="plan_order_graph_view" model="ir.ui.view">
+            <field name="name">plan.order.graph.view</field>
+            <field name="model">plan.order</field>
+            <field name="arch" type="xml">
+                <graph string="Plan Order Report Analysis ">
+                    <field name="name" type="row"/>
+                    <field name="percent_progressed" type="measure"/>
+                </graph>
+            </field>
+        </record> -->
+
+
+        <record model="ir.actions.act_window" id="action_plan_order_graph_view">
+            <field name="name">Plane Order Graph</field>
+            <field name="res_model">plan.order</field>
+            <field name="view_mode">graph</field>
+            <field name="view_id" ref="plan_order_graph"/>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+					Create a new view graph planning for production!
+                </p>
+            </field>
+        </record>
+
+        <record model="ir.actions.act_window" id="action_plan_order_grant_view">
+            <field name="name">Plane Order Grant</field>
+            <field name="res_model">plan.order</field>
+            <field name="view_mode">gantt</field>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+					Create a new view grant planning for production!
+                </p>
+            </field>
+        </record>
+
+        <record id="action_report_mrp_production" model="ir.actions.act_window">
+            <field name="name">MRP Production Report</field>
+            <field name="res_model">report.mrp.production</field>
+            <field name="view_mode">graph</field>
+            <field name="view_id" ref="erpvn_planning_management.report_mrp_production_graph_view"/>
+            <field name="help" type="html">
+                <p class="oe_view_nocontent_create">
+                    MRP Production Report
+                </p>
+            </field>
+        </record>
+
+        <record model="ir.actions.server" id="action_open_plan_order">
+            <field name="name">Production Planning</field>
+            <field name="model_id" ref="model_plan_order"/>
+            <field name="state">code</field>
+            <field name="code">
+	            action = model.action_open_plan_order()
+            </field>
+        </record>
+
+        <record id="action_update_scheduled_plan_order" model="ir.actions.server">
+            <field name="name">Update Schedule</field>
+            <field name="model_id" ref="model_plan_order"/>
+            <field name="binding_model_id" ref="model_plan_order"/>
+            <field name="binding_view_types">list,form</field>
+            <field name="state">code</field>
+            <field name="code">
+                if records:
+                    records.update_scheduled_plan_order()
+            </field>
+        </record>
+
+        <record id="action_run_close_plan_order" model="ir.actions.server">
+            <field name="name">Run Close Plan</field>
+            <field name="model_id" ref="model_plan_order"/>
+            <field name="binding_model_id" ref="model_plan_order"/>
+            <field name="groups_id" eval="[(4, ref('base.group_no_one'))]"/>
+            <field name="binding_view_types">list,form</field>
+            <field name="state">code</field>
+            <field name="code">
+                if records:
+                    records.action_run_close_plan_order()
+            </field>
+        </record>
+
+    </data>
+</odoo>

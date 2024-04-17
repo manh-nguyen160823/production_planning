@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <record id="plan_picking_form_view_inherit" model="ir.ui.view">
+            <field name="name">Picking Plan</field>
+            <field name="model">stock.picking</field>
+            <field name="inherit_id" ref="stock.view_picking_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='origin']" position="attributes">
+                    <attribute name="attrs">{'readonly': True}</attribute>
+                </xpath>
+                <field name="owner_id" position="before">
+                    <field name="plan_id" optional="show"/>
+                </field>
+                <xpath expr="//field[@name='move_ids_without_package']/tree/field[@name='product_id']" position="after">
+                    <field name="plan_id" optional="show" readonly="0"/>
+                    <field name="plan_line_id" optional="show" string="Root Item" domain="[('plan_id','=',plan_id)]"/>
+                </xpath>
+                <xpath expr="//field[@name='move_ids_without_package']/form/group[1]" position="before">
+                    <group>
+                        <field name="plan_id" optional="show"/>
+                        <field name="plan_line_id" attrs="{'invisible': [('plan_line_id', '=', False)]}" string="Root Item"/>
+                    </group>
+                </xpath>
+            </field>
+        </record>
+
+    </data>
+</odoo>
+   

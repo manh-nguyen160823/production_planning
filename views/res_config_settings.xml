@@ -1,0 +1,59 @@
+<odoo>
+    <data>
+
+        <record id="planning_settings_form" model="ir.ui.view">
+            <field name="name">res.config.settings</field>
+            <field name="model">res.config.settings</field>
+            <field name="inherit_id" ref="base.res_config_settings_view_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//div[hasclass('settings')]" position="inside">
+                    <div class="app_settings_block" data-string="Planning" string="Planning" data-key="erpvn_planning_management" name="erpvn_planning_management">
+                        <h2>Planning Setting</h2>
+
+                        <div class="row mt16 o_settings_container" name="planning_setting">
+                            <div class="col-12 col-lg-6 o_setting_box">
+                                <div class="o_setting_left_pane"/>
+                                <div class="o_setting_right_pane">
+                                    <div class="content-group">
+                                        <div class="row mt16">
+                                            <label class="col-lg-3 o_light_label" for="categ_forecast_default" string="Categ Forecast"/>
+                                            <field name="categ_forecast_default" options="{'no_create':1, 'no_open':1}"/>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-lg-6 col-12 o_setting_box">
+                                <div class="o_setting_left_pane"/>
+                                <div class="o_setting_right_pane">
+                                    <span class="o_form_label">Group MO By</span>
+                                    <span class="fa fa-lg fa-building-o" title="Group MO By" aria-label="Group MO By." role="img"/>
+                                    <div class="text-muted">
+                                        Group MO By
+                                    </div>
+                                    <div class="content-group">
+                                        <div class="row mt16">
+                                            <label for="is_grouped_mo_by" string="Group MO" class="col-lg-3 o_light_label"/>
+                                            <field name="is_grouped_mo_by"/>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="planning_configuration_action" model="ir.actions.act_window">
+            <field name="name">Settings</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">res.config.settings</field>
+            <field name="view_mode">form</field>
+            <field name="target">inline</field>
+            <field name="context">{'module' : 'erpvn_planning_management'}</field>
+        </record>
+
+    </data>
+</odoo>
